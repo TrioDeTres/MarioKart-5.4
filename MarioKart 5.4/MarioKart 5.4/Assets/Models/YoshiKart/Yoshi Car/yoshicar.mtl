@@ -1,0 +1,20 @@
+# Material file for yoshicar.obj
+
+newmtl yoshicar_body
+	Ns 0
+	d 1
+	illum 2
+	Kd 0.8 0.8 0.8
+	Ks 0.0 0.0 0.0
+	Ka 0.2 0.2 0.2
+	map_Kd Tex_0227_0.png
+
+newmtl yoshicar_wheels
+	Ns 0
+	d 1
+	illum 2
+	Kd 0.8 0.8 0.8
+	Ks 0.0 0.0 0.0
+	Ka 0.2 0.2 0.2
+	map_Kd Tex_0242_0.png
+
