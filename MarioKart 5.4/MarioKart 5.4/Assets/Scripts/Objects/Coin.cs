@@ -9,6 +9,8 @@ public class Coin : MonoBehaviour
     public MeshRenderer meshRenderer;
     public Collider coinCollider;
     public float rotSpeed = 180f;
+    public AudioSource coinEffects;
+
     void Awake()
     {
         meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
@@ -25,6 +27,7 @@ public class Coin : MonoBehaviour
         {
             meshRenderer.enabled = false;
             coinCollider.enabled = false;
+            coinEffects.Play();
             if (OnCoinHit != null)
                 OnCoinHit(this);
             StartCoroutine(AppearCoin());
@@ -36,5 +39,6 @@ public class Coin : MonoBehaviour
         yield return new WaitForSeconds(3.5f);
         GetComponent<Collider>().enabled = true;
         GetComponentInChildren<MeshRenderer>().enabled = true;
+        coinEffects.Stop();
     }
 }

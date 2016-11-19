@@ -220,37 +220,26 @@ public class KartController : MonoBehaviour
     {
         if (!isBraking)
         {
-            if (motor > 0.3)
+            if (motor > 0.0)
             {
                 soundEffects[0].Play();
 
                 soundEffects[1].Stop();
                 soundEffects[2].Stop();
-                soundEffects[3].Stop();
-            }
-            else if (motor > 0.0)
-            {
-                soundEffects[1].Play();
-
-                soundEffects[0].Stop();
-                soundEffects[2].Stop();
-                soundEffects[3].Stop();
             }
             else if (motor < 0)
             {
-                soundEffects[1].Play();
+                soundEffects[0].Play();
 
-                soundEffects[0].Stop();
+                soundEffects[1].Stop();
                 soundEffects[2].Stop();
-                soundEffects[3].Stop();
             }
         }
         else {
-            soundEffects[3].Play();
+            soundEffects[2].Play();
 
             soundEffects[0].Stop();
             soundEffects[1].Stop();
-            soundEffects[2].Stop();
         }
     }
 }
