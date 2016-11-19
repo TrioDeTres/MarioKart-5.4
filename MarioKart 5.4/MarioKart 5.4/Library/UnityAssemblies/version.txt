@@ -1,9 +1,0 @@
-5.4.2f2:2.3.0.0
-StandaloneWindows
-C:/Users/JAT/Documents/UNITY/Editor/Data/Managed/UnityEngine.dll
-C:/Users/JAT/Documents/UNITY/Editor/Data/UnityExtensions/Unity/Advertisements/UnityEngine.Advertisements.dll
-C:/Users/JAT/Documents/UNITY/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll
-C:/Users/JAT/Documents/UNITY/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll
-C:/Users/JAT/Documents/UNITY/Editor/Data/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll
-C:/Users/JAT/Documents/UNITY/Editor/Data/UnityExtensions/Unity/UnityPurchasing/UnityEngine.Purchasing.dll
-C:/Users/JAT/Documents/UNITY/Editor/Data/Managed/UnityEditor.dll
