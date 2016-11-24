@@ -9,12 +9,13 @@ public class Coin : MonoBehaviour
     public MeshRenderer meshRenderer;
     public Collider coinCollider;
     public float rotSpeed = 180f;
-    public AudioSource coinEffects;
+    AudioSource coinEffects;
 
     void Awake()
     {
         meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
         coinCollider = GetComponent<SphereCollider>();
+		coinEffects = GetComponent<AudioSource> ();
     }
     void Update()
     {
