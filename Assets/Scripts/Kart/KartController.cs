@@ -12,8 +12,6 @@ public class KartController : MonoBehaviour
     public float maxSpeed = 60;
     public float halfSpeed;
 
-    public List<AudioSource> soundEffects;
-
     private new Rigidbody rigidbody;
     private bool isBraking;
     private Vector3 initialPosition;
@@ -23,6 +21,8 @@ public class KartController : MonoBehaviour
     private JointSpring targetPosition;
 
     private float timeAfterBrake;
+	private float lastForward = 0;
+	private AudioSource[] audioPlayer;
 
     [SerializeField]
     public float speed;
@@ -34,6 +34,7 @@ public class KartController : MonoBehaviour
         rigidbody = GetComponent<Rigidbody>();
 
         rigidbody.centerOfMass = centerOfMasss.localPosition;
+		audioPlayer = GetComponentsInChildren<AudioSource> ();
 
         halfSpeed =  maxSpeed / 2.0f;
 
@@ -111,6 +112,7 @@ public class KartController : MonoBehaviour
 
         UpdateWheelFriction();
         PlaySounds(forward);
+		lastForward = forward;
     }
 
     private void Brake()
@@ -220,26 +222,31 @@ public class KartController : MonoBehaviour
     {
         if (!isBraking)
         {
-            if (motor > 0.0)
-            {
-                soundEffects[0].Play();
+			if (motor > 0.0 && lastForward <= 0) {
+				audioPlayer [0].loop = true;
+				audioPlayer [0].Play ();
+				audioPlayer [1].Stop ();
+				audioPlayer [2].Stop ();
 
-                soundEffects[1].Stop();
-                soundEffects[2].Stop();
-            }
-            else if (motor < 0)
-            {
-                soundEffects[0].Play();
-
-                soundEffects[1].Stop();
-                soundEffects[2].Stop();
-            }
+			} else if (motor < 0 && lastForward >= 0) {
+				audioPlayer [3].loop = true;
+				audioPlayer [3].Play ();
+				audioPlayer [0].Stop ();
+				audioPlayer [2].Stop ();
+			} else if (motor == 0) {
+				audioPlayer [1].loop = true;
+				audioPlayer [1].Play ();
+				audioPlayer [0].Stop ();
+				audioPlayer [3].Stop ();
+				audioPlayer [2].Stop ();
+			}
         }
         else {
-            soundEffects[2].Play();
-
-            soundEffects[0].Stop();
-            soundEffects[1].Stop();
+			audioPlayer [2].Play ();
+			audioPlayer [0].Stop ();
+			audioPlayer [1].Stop ();
+			audioPlayer [3].Stop ();
         }
     }
+		
 }
