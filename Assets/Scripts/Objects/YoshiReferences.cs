@@ -8,10 +8,11 @@ public class YoshiReferences : MonoBehaviour
     public SkinnedMeshRenderer eyeMesh;
 
     public GameObject kartContainer;
-    void Start()
+
+    public void LoadSkin(YoshiSkin p_skin)
     {
-        bodyMesh.materials[0].SetTexture("_MainTex", Resources.Load<Texture2D>("Textures/Yoshi/Yoshi_Black_Body"));
-        eyeMesh.materials[0].SetTexture("_MainTex", Resources.Load<Texture2D>("Textures/Yoshi/Yoshi_Black_Eye"));
-        Debug.Log(bodyMesh.materials[0].mainTexture);
+        string __skinToString = Enums.YoshiSkinToString(p_skin);
+        bodyMesh.materials[0].SetTexture("_MainTex", Resources.Load<Texture2D>("Textures/Yoshi/Yoshi_" + __skinToString + "_Body"));
+        eyeMesh.materials[0].SetTexture("_MainTex", Resources.Load<Texture2D>("Textures/Yoshi/Yoshi_" + __skinToString + "_Eye"));
     }
 }
