@@ -12,16 +12,24 @@ public class ShellManager : MonoBehaviour
 
     public float shootCooldown = 3f;
 
+    AudioSource throwShell;
+
     void Start ()
     {
         shells = new List<Shell>();
-	}
+
+    }
+
+    void Awake() {
+        throwShell = GetComponent<AudioSource>();
+    }
 
     void Update()
     {
         shootCooldown += Time.deltaTime;
         if (Input.GetKeyDown(KeyCode.Q) && shootCooldown >= 2f && shells.Count > 0)
         {
+            throwShell.Play();
             shells[0].transform.position = shellShootSpawn.position;
             shells[0].SetShellRoaming(kart.forward);
             shells.RemoveAt(0);
