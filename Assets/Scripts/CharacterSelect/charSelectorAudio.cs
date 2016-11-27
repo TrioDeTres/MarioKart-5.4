@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class charSelectorAudio : MonoBehaviour {
+public class CharSelectorAudio : MonoBehaviour {
 	private AudioSource[] charAwakeEffect;
 
 	// Use this for initialization

@@ -17,9 +17,9 @@ public class YoshiPortrait : MonoBehaviour
     {
         playerLockedBar.SetActive(false);
     }
-    public void EnablePlayerLockedBar(int p_playerID)
+    public void EnablePlayerLockedBar(string playername)
     {
         playerLockedBar.SetActive(true);
-        playerName.text = "Player " + (p_playerID + 1).ToString();
+        playerName.text = playername;
     }
 }

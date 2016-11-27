@@ -15,9 +15,10 @@ namespace UnityStandardAssets.Vehicles.Car
             {
                 yield return null;
 
-                if (transform.parent.parent == null)
+                if (transform.parent == null || 
+                    transform.parent.parent == null)
                 {
-					Destroy(gameObject, m_PersistTime);
+                    Destroy(gameObject, m_PersistTime);
                 }
             }
         }

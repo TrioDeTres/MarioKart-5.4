@@ -1,90 +1,131 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Prototype.NetworkLobby;
 using UnityEngine;
+using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class CharacterSelectManager : MonoBehaviour
+public class CharacterSelectManager : NetworkBehaviour
 {
-
-    public YoshiReferences  yoshi;
-    public List<GameObject> kartPrefabs;
-
     public List<PlayerCharacterSelect>  players;
     public List<YoshiPortrait>          portraits;
     public List<Image>                  playerStatusImage;
+    public List<Transform>              playerSpots;
     public List<Text>                   playerStatusLabel;
     public RectTransform                youLabel;
+    public PlayerCharacterSelect        localPlayer;
+    public Canvas                       canvas;
 
-    public int activePlayerID;
+    private bool changingScene;
 
-    void Start()
+    public int playerStatusImageIndex;
+
+    public void FindPlayers()
     {
+        players = FindObjectsOfType<PlayerCharacterSelect>().ToList();
+
         for (int i = 0; i < players.Count; i++)
-            players[i].SetID(i);
-        UpdateUI();
-    }
-   
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-            ChangeActivePlayer(0);
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
-            ChangeActivePlayer(1);
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
-            ChangeActivePlayer(2);
-        else if (Input.GetKeyDown(KeyCode.Alpha4))
-            ChangeActivePlayer(3);
-        else if (Input.GetKeyDown(KeyCode.Return))
-            LockPlayerDecision(true);
-    }
-    //Test-Only
-    private void ChangeActivePlayer(int p_id)
-    {
-        if (p_id < players.Count)
         {
-            activePlayerID = p_id;
-            UpdateUI();
+            PlayerCharacterSelect player = players[i];
+
+            player.SetID(FindPlayerStartSpot(player.transform));
+
+            if (player.isLocal)
+            {
+                localPlayer = player;
+            }
         }
     }
-    //Not used
-    public void SpawnKart()
+
+    private int FindPlayerStartSpot(Transform playerTransform)
     {
-        /*if (yoshi.kartContainer.transform.childCount > 0)
-            Destroy(yoshi.kartContainer.transform.GetChild(0).gameObject);
-        GameObject __go = Instantiate(kartPrefabs[(int)selectedKart]);
-        __go.transform.parent = yoshi.kartContainer.transform;
-        __go.transform.localPosition = kartPrefabs[(int)selectedKart].transform.position;
-        __go.transform.localScale = Vector3.one;
-        __go.transform.localRotation = Quaternion.identity;*/
+        int spotId = 0;
+
+        float lastDistance = 999.999f;
+
+        for (int i = 0; i < playerSpots.Count; i++)
+        {
+            float distance = Vector3.Distance(playerTransform.position, playerSpots[i].position);
+
+            if (lastDistance > distance)
+            {
+                spotId = i;
+                lastDistance = distance;
+            }
+        }
+
+        return spotId;
+    }
+   
+    public void Update()
+    {
+        if (players.Count < 2)
+        {
+            FindPlayers();
+        }
+
+        UpdateUI();
+
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            LockPlayerDecision(true);
+        }
+
+        if (isServer && !changingScene) { 
+            ChangeSceneWhenReady();
+        }
     }
 
+    [Server]
+    public void ChangeSceneWhenReady()
+    {
+        bool changeScene = players.TrueForAll(p => p.status == PlayerCharacterSelect.PlayerStatus.LOCKED);
+
+        if (changeScene)
+        {
+            SceneManager.LoadScene("Match");
+            NetworkManager.singleton.ServerChangeScene("Match");
+            changingScene = true;
+        }
+    }
+    
     //Change player locked status and update the ui
     public void LockPlayerDecision(bool p_lock)
     {
         if (p_lock)
-            players[activePlayerID].status = PlayerCharacterSelect.PlayerStatus.LOCKED;
+        {
+            localPlayer.CmdUpdatePlayerStatus((int)PlayerCharacterSelect.PlayerStatus.LOCKED);
+            localPlayer.CmdUpdatePlayerName();
+        }
+            
         else
-            players[activePlayerID].status = PlayerCharacterSelect.PlayerStatus.CHOOSING;
+            localPlayer.CmdUpdatePlayerStatus((int)PlayerCharacterSelect.PlayerStatus.CHOOSING);
+
         UpdateUI();
     }
+
     //Update All UI
     private void UpdateUI()
     {
-        UpdatePlayerStatus();
-        UpdatePortrait();
-        UpdateYouLabel();
+        if (localPlayer != null) { 
+            UpdatePlayerStatus();
+            UpdatePortrait();
+            UpdateYouLabel();
+        }
     }
+
     //Change the position of the You Label
     private void UpdateYouLabel()
     {
-        youLabel.anchoredPosition = playerStatusImage[activePlayerID].GetComponent<RectTransform>().anchoredPosition + (Vector2.up * 30f);
+        youLabel.anchoredPosition = playerStatusImage[localPlayer.id].rectTransform.anchoredPosition + Vector2.up * 32.0f;
     }
+
     private void UpdatePortrait()
     {
         //Convert the active player skin to and ID
-        int __skinID = (int)players[activePlayerID].selectedSkin;
+        int __skinID = (int) localPlayer.selectedSkin;
 
-        
         for (int i = 0; i < portraits.Count; i++)
         {
             //Enable the white/red animation on the portrait of the selected skin
@@ -96,26 +137,32 @@ public class CharacterSelectManager : MonoBehaviour
         {
             //Enable Locked Bar for the skins selected by locked players
             if (players[i].status == PlayerCharacterSelect.PlayerStatus.LOCKED)
-                portraits[(int)players[i].selectedSkin].EnablePlayerLockedBar(i);
+                portraits[(int)players[i].selectedSkin].EnablePlayerLockedBar(players[i].playerManager.playername);
         }
     }
+
     private void UpdatePlayerStatus()
     {
         for(int i = 0; i < 4; i ++)
         {
             if (i < players.Count)
             {
+                playerStatusImage[i].gameObject.SetActive(true);
+                playerStatusImage[i].gameObject.SetActive(true);
+
+                PlayerCharacterSelect player = players[i];
+
                 // Choosing: Light Blue
-                if (players[i].status == PlayerCharacterSelect.PlayerStatus.CHOOSING)
+                if (player.status == PlayerCharacterSelect.PlayerStatus.CHOOSING)
                 {
-                    playerStatusImage[i].color = new Color(0.55f, 1f, 1f);
-                    playerStatusLabel[i].text = "CHOOSING...";
+                    playerStatusImage[player.id].color = new Color(0.55f, 1f, 1f);
+                    playerStatusLabel[player.id].text = "CHOOSING...";
                 }
                 // Ready: Light Green
                 else
                 {
-                    playerStatusImage[i].color = new Color(0.25f, 1f, 0.55f);
-                    playerStatusLabel[i].text = "READY!";
+                    playerStatusImage[player.id].color = new Color(0.25f, 1f, 0.55f);
+                    playerStatusLabel[player.id].text = "READY!";
                 }
             }
             //Disable if ID higher than player count
@@ -126,10 +173,11 @@ public class CharacterSelectManager : MonoBehaviour
             }
         }
     }
+
     public void SkinSelected(int p_skinIndex)
     {
         //Check if it's not already selected
-        if ((int)players[activePlayerID].selectedSkin == p_skinIndex)
+        if ((int)localPlayer.selectedSkin == p_skinIndex)
             return;
         //Check if any player already selected skin
         for(int i = 0; i < players.Count; i ++)
@@ -142,7 +190,8 @@ public class CharacterSelectManager : MonoBehaviour
 
         //Unlock player select and update skin and UI
         LockPlayerDecision(false);
-        players[activePlayerID].ChangeSkin((YoshiSkin)p_skinIndex);
+        localPlayer.CmdUpdatePlayerSkin(p_skinIndex);
         UpdateUI();
     }
 }
+
