@@ -40,10 +40,10 @@ namespace Prototype.NetworkLobby
         {
             base.OnClientEnterLobby();
 
-            if (LobbyManager.s_Singleton != null) LobbyManager.s_Singleton.OnPlayersNumberModified(1);
+            if (LobbyManager.singleton != null) LobbyManager.singleton.OnPlayersNumberModified(1);
 
             LobbyPlayerList._instance.AddPlayer(this);
-            LobbyPlayerList._instance.DisplayDirectServerWarning(isServer && LobbyManager.s_Singleton.matchMaker == null);
+            LobbyPlayerList._instance.DisplayDirectServerWarning(isServer && LobbyManager.singleton.matchMaker == null);
 
             if (isLocalPlayer)
             {
@@ -123,7 +123,7 @@ namespace Prototype.NetworkLobby
             readyButton.onClick.RemoveAllListeners();
             readyButton.onClick.AddListener(OnReadyClicked);
 
-            if (LobbyManager.s_Singleton != null) LobbyManager.s_Singleton.OnPlayersNumberModified(0);
+            if (LobbyManager.singleton != null) LobbyManager.singleton.OnPlayersNumberModified(0);
         }
 
         public override void OnClientReady(bool readyState)
@@ -201,8 +201,8 @@ namespace Prototype.NetworkLobby
         [ClientRpc]
         public void RpcUpdateCountdown(int countdown)
         {
-            LobbyManager.s_Singleton.countdownPanel.UIText.text = "Match Starting in " + countdown;
-            LobbyManager.s_Singleton.countdownPanel.gameObject.SetActive(countdown != 0);
+            LobbyManager.singleton.countdownPanel.UIText.text = "Match Starting in " + countdown;
+            LobbyManager.singleton.countdownPanel.gameObject.SetActive(countdown != 0);
         }
 
         [Command]
@@ -267,7 +267,7 @@ namespace Prototype.NetworkLobby
         public void OnDestroy()
         {
             LobbyPlayerList._instance.RemovePlayer(this);
-            if (LobbyManager.s_Singleton != null) LobbyManager.s_Singleton.OnPlayersNumberModified(-1);
+            if (LobbyManager.singleton != null) LobbyManager.singleton.OnPlayersNumberModified(-1);
 
             int idx = System.Array.IndexOf(Colors, playerColor);
 

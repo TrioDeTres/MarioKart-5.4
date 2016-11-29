@@ -9,6 +9,5 @@ public class ActivateLastTrigger : MonoBehaviour
     void OnTriggerExit(Collider col)
     {
         lastTrigger.SetActive(true);
-        Debug.Log("Last Trigger Active");
     }
 }

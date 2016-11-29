@@ -1,118 +1,208 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections;
+using System.Collections.Generic;
 using Prototype.NetworkLobby;
 using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class CharacterSelectManager : NetworkBehaviour
 {
+    public static CharacterSelectManager instance;
+
+    [SyncVar]
+    public int                          numberOfTotalPlayers;
+
+    [SyncVar(hook = "UpdateServerMessage")]
+    public int                          matchCountdown;
+
+    public float                        prematchCountdown;
+
     public List<PlayerCharacterSelect>  players;
     public List<YoshiPortrait>          portraits;
     public List<Image>                  playerStatusImage;
     public List<Transform>              playerSpots;
     public List<Text>                   playerStatusLabel;
     public RectTransform                youLabel;
+    public GameObject                   serverMessageLabel;
+    public Text                         serverMessageText;
     public PlayerCharacterSelect        localPlayer;
     public Canvas                       canvas;
+    public int                          numberOfPlayers;
 
-    private bool changingScene;
+    private bool isChangingScene;
 
-    public int playerStatusImageIndex;
-
-    public void FindPlayers()
+    public void Start()
     {
-        players = FindObjectsOfType<PlayerCharacterSelect>().ToList();
+        instance = this;
+        players = new List<PlayerCharacterSelect>();
 
-        for (int i = 0; i < players.Count; i++)
+        PlayerCharacterSelectPoolUtil pool = PlayerCharacterSelectPoolUtil.Instance;
+
+        pool.OnPlayerRegistered += AddPlayer;
+        pool.OnLocalPlayerRegistered += AddLocal;
+
+        players.AddRange(pool.GetPlayers());
+        localPlayer = pool.FindLocalPlayer(players);
+
+        numberOfPlayers = players.Count;
+
+        if (isServer)
         {
-            PlayerCharacterSelect player = players[i];
-
-            player.SetID(FindPlayerStartSpot(player.transform));
-
-            if (player.isLocal)
-            {
-                localPlayer = player;
-            }
-        }
-    }
-
-    private int FindPlayerStartSpot(Transform playerTransform)
-    {
-        int spotId = 0;
-
-        float lastDistance = 999.999f;
-
-        for (int i = 0; i < playerSpots.Count; i++)
-        {
-            float distance = Vector3.Distance(playerTransform.position, playerSpots[i].position);
-
-            if (lastDistance > distance)
-            {
-                spotId = i;
-                lastDistance = distance;
-            }
-        }
-
-        return spotId;
-    }
-   
-    public void Update()
-    {
-        if (players.Count < 2)
-        {
-            FindPlayers();
-        }
-
-        UpdateUI();
-
-        if (Input.GetKeyDown(KeyCode.Return))
-        {
-            LockPlayerDecision(true);
-        }
-
-        if (isServer && !changingScene) { 
-            ChangeSceneWhenReady();
+            prematchCountdown = 5.0f;
+            numberOfTotalPlayers = NetworkServer.connections.Count;
+            UpdatePlayerId(players);
         }
     }
 
     [Server]
-    public void ChangeSceneWhenReady()
+    private void UpdatePlayerId(List<PlayerCharacterSelect> players)
     {
-        bool changeScene = players.TrueForAll(p => p.status == PlayerCharacterSelect.PlayerStatus.LOCKED);
-
-        if (changeScene)
+        for (int i = 0; i < players.Count; i++)
         {
-            SceneManager.LoadScene("Match");
-            NetworkManager.singleton.ServerChangeScene("Match");
-            changingScene = true;
+            PlayerCharacterSelect player = players[i];
+
+            player.id = FindPlayerIdByStartPosition(player.transform.position);
         }
     }
-    
+
+    [Server]
+    private int FindPlayerIdByStartPosition(Vector3 playerPosition)
+    {
+        float lastDistance = float.MaxValue;
+
+        int id = 0;
+
+        for (int i = 0; i < playerSpots.Count; i++)
+        {
+            float currentDistance = Vector3.Distance(playerPosition, playerSpots[i].position);
+
+            if (lastDistance > currentDistance)
+            {
+                id = i;
+                lastDistance = currentDistance;
+            }
+        }
+
+        return id;
+    }
+
+    public void Update()
+    {
+        if (numberOfPlayers == numberOfTotalPlayers)
+        {
+            UpdateUI();
+
+            if (Input.GetKeyDown(KeyCode.Return) && localPlayer != null)
+            {
+                LockPlayerDecision(true);
+            }
+        }
+
+        // all players ready then change scene
+        if (isServer && IsEveryPlayerReady(players) && !isChangingScene)
+        {
+            SavePlayerMetadata(players);
+            StartCoroutine(ServerCountdownCoroutine());
+        }
+    }
+
+    public void SavePlayerMetadata(List<PlayerCharacterSelect> players)
+    {
+        for (int i = 0; i < players.Count; i++)
+        {
+            PlayerCharacterSelect player = players[i];
+            int connectionId = player.connectionToClient.connectionId;
+            PlayerMetadata meta = new PlayerMetadata(connectionId, player.playername, player.selectedSkin);
+            LobbyManager.singleton.playerMetadata.Add(connectionId, meta);
+        }
+    }
+
+    private bool IsEveryPlayerReady(List<PlayerCharacterSelect> players)
+    {
+        for (int i = 0; i < players.Count; i++)
+        {
+            if (players[i].status == (int) PlayerCharacterSelect.PlayerStatus.CHOOSING)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public void UpdateServerMessage(int countdown)
+    {
+        if (!serverMessageLabel.activeSelf)
+        {
+            serverMessageLabel.SetActive(true);
+        }
+
+        serverMessageText.text = "Match will start in " + countdown;
+    }
+
+    private IEnumerator ServerCountdownCoroutine()
+    {
+        isChangingScene = true;
+
+        float remainingTime = prematchCountdown;
+        int floorTime = Mathf.FloorToInt(remainingTime);
+
+        while (remainingTime > 0)
+        {
+            yield return null;
+
+            remainingTime -= Time.deltaTime;
+            int newFloorTime = Mathf.FloorToInt(remainingTime);
+
+            if (newFloorTime != floorTime && newFloorTime >= 0)
+            {
+                matchCountdown = newFloorTime;
+            }
+        }
+
+        DestroyAllPlayers(players);
+        NetworkManager.singleton.ServerChangeScene("Match");
+    }
+
+    public void DestroyAllPlayers(List<PlayerCharacterSelect> players)
+    {
+        for (int i = 0; i < players.Count; i++)
+        {
+            NetworkServer.Destroy(players[i].gameObject);
+        }
+    }
+
+    public
+        void AddPlayer(PlayerCharacterSelect player)
+    {
+        players.Add(player);
+        numberOfPlayers = players.Count;
+    }
+
+    public void AddLocal(PlayerCharacterSelect player)
+    {
+        localPlayer = player;
+    }
+
     //Change player locked status and update the ui
     public void LockPlayerDecision(bool p_lock)
     {
         if (p_lock)
         {
-            localPlayer.CmdUpdatePlayerStatus((int)PlayerCharacterSelect.PlayerStatus.LOCKED);
-            localPlayer.CmdUpdatePlayerName();
+            localPlayer.CmdUpdatePlayerStatus((int) PlayerCharacterSelect.PlayerStatus.LOCKED);
         }
-            
         else
-            localPlayer.CmdUpdatePlayerStatus((int)PlayerCharacterSelect.PlayerStatus.CHOOSING);
-
-        UpdateUI();
+        {
+            localPlayer.CmdUpdatePlayerStatus((int) PlayerCharacterSelect.PlayerStatus.CHOOSING);
+        }
     }
 
     //Update All UI
     private void UpdateUI()
     {
-        if (localPlayer != null) { 
-            UpdatePlayerStatus();
-            UpdatePortrait();
-            UpdateYouLabel();
-        }
+        UpdatePlayerStatus();
+        UpdatePortrait();
+        UpdateYouLabel();
     }
 
     //Change the position of the You Label
@@ -137,7 +227,9 @@ public class CharacterSelectManager : NetworkBehaviour
         {
             //Enable Locked Bar for the skins selected by locked players
             if (players[i].status == PlayerCharacterSelect.PlayerStatus.LOCKED)
-                portraits[(int)players[i].selectedSkin].EnablePlayerLockedBar(players[i].playerManager.playername);
+            {
+                portraits[(int) players[i].selectedSkin].EnablePlayerLockedBar(players[i].playername);
+            }
         }
     }
 
@@ -153,16 +245,16 @@ public class CharacterSelectManager : NetworkBehaviour
                 PlayerCharacterSelect player = players[i];
 
                 // Choosing: Light Blue
-                if (player.status == PlayerCharacterSelect.PlayerStatus.CHOOSING)
+                if (player.status == (int) PlayerCharacterSelect.PlayerStatus.CHOOSING)
                 {
                     playerStatusImage[player.id].color = new Color(0.55f, 1f, 1f);
-                    playerStatusLabel[player.id].text = "CHOOSING...";
+                    playerStatusLabel[player.id].text = "Choosing...";
                 }
                 // Ready: Light Green
                 else
                 {
                     playerStatusImage[player.id].color = new Color(0.25f, 1f, 0.55f);
-                    playerStatusLabel[player.id].text = "READY!";
+                    playerStatusLabel[player.id].text = "Ready!";
                 }
             }
             //Disable if ID higher than player count

@@ -47,3 +47,9 @@ public enum KartType
     YOSHI_KART
 }
 
+public enum ComponentState
+{
+    CHAR_SELECT,
+    MATCH
+}
+

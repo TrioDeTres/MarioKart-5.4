@@ -5,8 +5,7 @@ using UnityEngine.Networking;
 using UnityEngine.Networking.Types;
 using UnityEngine.Networking.Match;
 using System.Collections;
-using System.Linq;
-
+using System.Collections.Generic;
 
 namespace Prototype.NetworkLobby
 {
@@ -14,7 +13,7 @@ namespace Prototype.NetworkLobby
     {
         static short MsgKicked = MsgType.Highest + 1;
 
-        static public LobbyManager s_Singleton;
+        static public LobbyManager singleton;
 
 
         [Header("Unity UI Lobby")]
@@ -31,6 +30,8 @@ namespace Prototype.NetworkLobby
         public LobbyInfoPanel infoPanel;
         public LobbyCountdownPanel countdownPanel;
         public GameObject addPlayerButton;
+
+        public Dictionary<int, PlayerMetadata> playerMetadata;
 
         protected RectTransform currentPanel;
 
@@ -58,9 +59,10 @@ namespace Prototype.NetworkLobby
 
         void Start()
         {
-            s_Singleton = this;
+            singleton = this;
             _lobbyHooks = GetComponent<LobbyHook>();
             currentPanel = mainMenuPanel;
+            playerMetadata = new Dictionary<int, PlayerMetadata>();
 
             backButton.gameObject.SetActive(false);
             GetComponent<Canvas>().enabled = true;
@@ -365,7 +367,6 @@ namespace Prototype.NetworkLobby
                 SetServerInfo("Client", networkAddress);
             }
         }
-
 
         public override void OnClientDisconnect(NetworkConnection conn)
         {

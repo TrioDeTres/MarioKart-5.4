@@ -1,40 +1,40 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Prototype.NetworkLobby;
+using UnityEngine;
 using UnityEngine.Networking;
 
 public class MatchManager : NetworkBehaviour
 {
     public Transform[] spawnPoints;
-    public PlayerManager[] players;
+    public GameObject playerPrefab;
 
     public void Start()
     {
         if (isServer)
-        { 
-            players = FindPlayers();
-            ResetPlayerComponents(players);
-            UpdatePlayerPosition(players, spawnPoints);
+        {
+            SpawnPlayers(NetworkServer.connections.ToArray());
         }
     }
 
-    private PlayerManager[] FindPlayers()
+    private void SpawnPlayers(NetworkConnection[] connections)
     {
-        return FindObjectsOfType<PlayerManager>();
-    }
+        Dictionary<int, PlayerMetadata> playersMeta = LobbyManager.singleton.playerMetadata;
 
-    private void ResetPlayerComponents(PlayerManager[] players)
-    {
-        for (int i = 0; i < players.Length; i++)
+        for (int i = 0; i < connections.Length; i++)
         {
-            players[i].RpcResetPlayerComponents();
-        }
-    }
+            NetworkConnection connection = connections[i];
 
-    private void UpdatePlayerPosition(PlayerManager[] players, Transform[] spawnPoints)
-    {
-        for (int i = 0; i < players.Length; i++)
-        {
-            PlayerManager player = players[i];
-            player.RpcUpdatePlayerPosition(spawnPoints[player.id].transform.position);
+            GameObject player = Instantiate(playerPrefab, spawnPoints[i].transform.position, Quaternion.identity) as GameObject;
+
+            PlayerManager playerManager = player.GetComponent<PlayerManager>();
+
+            PlayerMetadata playerMeta = playersMeta[connection.connectionId];
+
+            playerManager.playername = playerMeta.playername;
+            playerManager.skin = (int) playerMeta.skin;
+
+            NetworkServer.ReplacePlayerForConnection(connection, player, 0);
         }
     }
 }
