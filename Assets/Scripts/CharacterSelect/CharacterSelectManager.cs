@@ -49,7 +49,6 @@ public class CharacterSelectManager : NetworkBehaviour
             numberOfTotalPlayers = NetworkServer.connections.Count;
             UpdatePlayerId(players);
         }
-        UpdateUI();
     }
 
     [Server]
@@ -100,6 +99,7 @@ public class CharacterSelectManager : NetworkBehaviour
             SavePlayerMetadata(players);
             StartCoroutine(ServerCountdownCoroutine());
         }
+
         UpdateUI();
     }
 
