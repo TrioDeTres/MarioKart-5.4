@@ -26,14 +26,12 @@ public class ChatPanel : MonoBehaviour
         messageInput.text = string.Empty;
         messageInput.Select();
         messageInput.ActivateInputField();
-
         StartCoroutine(VerticalScrollBarDelay());
     }
 
     private IEnumerator VerticalScrollBarDelay()
     {
-        yield return new WaitForSeconds(0.075f);
-
+        yield return new WaitForSeconds(0.175f);
         verticalScrollBar.value = -0.5f;
     }
 }
