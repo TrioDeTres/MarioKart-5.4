@@ -12,7 +12,10 @@ public class PlayerManager : NetworkBehaviour
     public YoshiReferences references;
 
     public void Start() {}
-    public void Update() { }
+    public void Update()
+    {
+        UpdateSkin(skin);
+    }
 
     public void UpdateSkin(int skin)
     {

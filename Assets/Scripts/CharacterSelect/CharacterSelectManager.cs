@@ -45,6 +45,7 @@ public class CharacterSelectManager : NetworkBehaviour
 
         if (isServer)
         {
+            
             prematchCountdown = 5.0f;
             numberOfTotalPlayers = NetworkServer.connections.Count;
             UpdatePlayerId(players);
@@ -173,13 +174,17 @@ public class CharacterSelectManager : NetworkBehaviour
     {
         players.Add(player);
         numberOfPlayers = players.Count;
+        if (isServer)
+            player.RpcUpdateID(FindPlayerIdByStartPosition(player.transform.position));
     }
 
     public void AddLocal(PlayerCharacterSelect player)
     {
         localPlayer = player;
+        if (isServer)
+            player.RpcUpdateID(FindPlayerIdByStartPosition(player.transform.position));
     }
-
+    
     //Change player locked status and update the ui
     public void LockPlayerDecision(bool p_lock)
     {

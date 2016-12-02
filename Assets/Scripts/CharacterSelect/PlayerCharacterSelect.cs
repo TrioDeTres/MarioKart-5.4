@@ -13,7 +13,7 @@ public class PlayerCharacterSelect : NetworkBehaviour
     public string               playername;
 
     [SyncVar(hook = "SetID")]
-    public int                  id;
+    public int                  id = -1;
 
     public YoshiReferences      yoshi;
     public PlayerStatus         status;
@@ -34,6 +34,7 @@ public class PlayerCharacterSelect : NetworkBehaviour
     //Define Player ID and Load a Preset Skin
     public void SetID(int p_id)
     {
+        id = p_id;
         status = PlayerStatus.CHOOSING;
         ChangeSkin((YoshiSkin) p_id);
         yoshi.LoadSkin(selectedSkin);
@@ -68,5 +69,10 @@ public class PlayerCharacterSelect : NetworkBehaviour
     public void RpcUpdatePlayerStatus(int status)
     {
         this.status = (PlayerStatus) status;
+    }
+    [ClientRpc]
+    public void RpcUpdateID(int p_id)
+    {
+        SetID(p_id);
     }
 }

@@ -68,7 +68,6 @@ public class CharacterSelectUIManager : MonoBehaviour
             else
             {
                 playerStatusImage[i].gameObject.SetActive(false);
-                playerStatusLabel[i].gameObject.SetActive(false);
             }
         }
     }
