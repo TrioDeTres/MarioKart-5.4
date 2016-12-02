@@ -20,8 +20,8 @@ public class BonusManager : NetworkBehaviour
         bonusList = new List<Bonus> (FindObjectsOfType<Bonus>());
         for (int i = 0; i < bonusList.Count; i++)
             bonusList[i].OnBonusHit += BonusHit;
-        foreach (Transform __t in bonusRowContainerList)
-            SpawnBonus(__t);
+        //foreach (Transform __t in bonusRowContainerList)
+        //    SpawnBonus(__t);
 	}
 
     private void BonusHit(Bonus obj)
