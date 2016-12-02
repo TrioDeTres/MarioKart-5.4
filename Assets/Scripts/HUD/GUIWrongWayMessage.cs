@@ -8,6 +8,7 @@ public class GUIWrongWayMessage : MonoBehaviour
 
 	void LateUpdate ()
     {
-        wrongWayGO.SetActive(ChangeKartFlag.wrongWay);
+        
+        //wrongWayGO.SetActive(ChangeKartFlag.wrongWay);
 	}
 }
