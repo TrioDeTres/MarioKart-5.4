@@ -11,28 +11,10 @@ public class BonusManager : NetworkBehaviour
     public List<Transform> bonusRowContainerList;
     public Transform bonusContainer;
     public GameObject bonusRowPrefab;
-	// Use this for initialization
-	void Start ()
-    {
-        if (!isServer)
-            return;
 
-        bonusList = new List<Bonus> (FindObjectsOfType<Bonus>());
-        for (int i = 0; i < bonusList.Count; i++)
-            bonusList[i].OnBonusHit += BonusHit;
-        //foreach (Transform __t in bonusRowContainerList)
-        //    SpawnBonus(__t);
-	}
-
-    private void BonusHit(Bonus obj)
+	
+    void Start()
     {
-        if (OnShellGot != null)
-            OnShellGot();
-    }
 
-    public void SpawnBonus(Transform p_trans)
-    {
-        GameObject __go = (GameObject)Instantiate(bonusRowPrefab, p_trans.position, p_trans.rotation, bonusContainer.transform);
-       // NetworkServer.S
     }
 }

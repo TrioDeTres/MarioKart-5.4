@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
-
+using UnityStandardAssets.Vehicles.Car;
 public class PlayerManager : NetworkBehaviour
 {
     [SyncVar]
@@ -8,10 +8,18 @@ public class PlayerManager : NetworkBehaviour
 
     [SyncVar(hook = "UpdateSkin")]
     public int skin;
+    
 
     public YoshiReferences references;
-
-    public void Start() {}
+    public CarController carController;
+    public void Start()
+    {
+        if (isLocalPlayer)
+        {
+            Camera.main.GetComponent<KartCameraController>().target = carController.transform;
+            GameSceneManager.instance.player = this;
+        }
+    }
     public void Update()
     {
         UpdateSkin(skin);
@@ -26,5 +34,11 @@ public class PlayerManager : NetworkBehaviour
     public void RpcUpdatePlayerPosition(Vector3 position)
     {
         transform.position = position;
+    }
+
+    [ClientRpc]
+    public void RpcSpawnShell()
+    {
+        GameSceneManager.instance.shellManager.CreateShells(carController.transform);
     }
 }

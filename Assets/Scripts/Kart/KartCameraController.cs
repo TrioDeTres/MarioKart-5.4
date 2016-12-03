@@ -2,7 +2,7 @@
 
 public class KartCameraController : MonoBehaviour
 {
-
+    //public PlayerManager player;
     public Transform target;
     public float distanceAway = 6f;
     public float distanceUp = 2f;
@@ -26,6 +26,8 @@ public class KartCameraController : MonoBehaviour
 
     public void LateUpdate ()
     {
+        if (target == null)
+            return;
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
 
@@ -43,15 +45,18 @@ public class KartCameraController : MonoBehaviour
         //transform.position = smothRotation * new Vector3(0, 0, -distanceAway) + target.position;
         transform.LookAt(target.position + lookAtOffset);
         transform.position += Vector3.up * distanceUp;
+        
     }
 
     public static float ClampAngle(float angle, float min, float max)
     {
-        if (angle < 180.0f) { 
+        if (angle < 180.0f)
+        { 
             angle += 360F;
         }
 
-        if (angle > 180.0f) { 
+        if (angle > 180.0f)
+        { 
             angle -= 360F;
         }
 

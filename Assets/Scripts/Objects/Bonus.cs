@@ -2,8 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class Bonus : MonoBehaviour
+public class Bonus : NetworkBehaviour
 {
     public event Action<Bonus>  OnBonusHit;
 
@@ -24,12 +25,10 @@ public class Bonus : MonoBehaviour
 
     void OnTriggerEnter(Collider col)
     {
-        if (col.tag == "Kart")
+        if (isServer && col.tag == "Player")
         {
-            if (OnBonusHit != null)
-                OnBonusHit(this);
-            meshRenderer.enabled = false;
-            bonusCollider.enabled = false;
+            col.transform.parent.parent.parent.GetComponent<PlayerManager>().RpcSpawnShell();
+            RpcEnableBonus(false);
             StartCoroutine(AppearBonus());
         }
     }
@@ -37,7 +36,14 @@ public class Bonus : MonoBehaviour
     IEnumerator AppearBonus()
     {
         yield return new WaitForSeconds(3.5f);
-        meshRenderer.enabled = true;
-        bonusCollider.enabled = true;
+        if (isServer)
+            RpcEnableBonus(true);
+    }
+
+    [ClientRpc]
+    public void RpcEnableBonus(bool p_enable)
+    {
+        meshRenderer.enabled = p_enable;
+        bonusCollider.enabled = p_enable;
     }
 }

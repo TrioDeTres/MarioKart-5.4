@@ -18,7 +18,8 @@ public class CharacterSelectUIManager : MonoBehaviour
 
     public void UpdateYouLabel(int p_playerID)
     {
-        youLabel.anchoredPosition = playerStatusImage[p_playerID].rectTransform.anchoredPosition + Vector2.up * 32.0f;
+        if (p_playerID > -1)
+            youLabel.anchoredPosition = playerStatusImage[p_playerID].rectTransform.anchoredPosition + Vector2.up * 32.0f;
     }
     public void UpdatePortrait(List<PlayerCharacterSelect> p_players, int p_selectedSkin)
     {
@@ -47,9 +48,10 @@ public class CharacterSelectUIManager : MonoBehaviour
         {
             if (i < p_players.Count)
             {
+                if (p_players[i].id < 0)
+                    continue;
                 playerStatusImage[i].gameObject.SetActive(true);
                 playerStatusImage[i].gameObject.SetActive(true);
-                
 
                 // Choosing: Light Blue
                 if (p_players[i].status == (int)PlayerCharacterSelect.PlayerStatus.CHOOSING)

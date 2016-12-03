@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class ShellManager : MonoBehaviour
+public class ShellManager : NetworkBehaviour
 {
     public List<Shell> shells;
 
@@ -36,18 +37,18 @@ public class ShellManager : MonoBehaviour
         }
     }
 	
-    public void CreateShells()
+    public void CreateShells(Transform p_player)
     {
-        if (shells.Count > 0)
-            return;
         Shell __shell;
         for (int i = 0; i < 3; i++)
         {
             GameObject __go = Instantiate(shellPrefab);
             __shell = __go.GetComponent<Shell>();
-            __shell.orbitTarget = kart;
+            __shell.orbitTarget = p_player;
             __shell.orbitAngle = 120f * i;
             shells.Add(__shell);
+            NetworkServer.Spawn(__go);
         }
     }
+   
 }
