@@ -9,13 +9,15 @@ public class PlayerManager : NetworkBehaviour
     [SyncVar(hook = "UpdateSkin")]
     public int skin;
     
-
     public YoshiReferences references;
     public CarController carController;
+    public CarUserControl carUserControl;
+
     public void Start()
     {
         if (isLocalPlayer)
         {
+            carUserControl.isLocal = true;
             Camera.main.GetComponent<KartCameraController>().target = carController.transform;
             GameSceneManager.instance.player = this;
         }
