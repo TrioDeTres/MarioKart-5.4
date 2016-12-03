@@ -66,4 +66,9 @@ public class PlayerCharacterSelectPoolUtil
     {
         return FindLocalPlayer(GetPlayers());
     }
+
+    public void Clean()
+    {
+        instance = null;
+    }
 }

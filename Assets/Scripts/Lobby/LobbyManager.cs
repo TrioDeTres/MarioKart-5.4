@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -15,6 +16,8 @@ namespace Prototype.NetworkLobby
 
         static public LobbyManager singleton;
 
+        public Action OnCleanUp;
+        public Action<NetworkConnection> OnCleanUpSinglePlayer;
 
         [Header("Unity UI Lobby")]
         [Tooltip("Time in second between all players ready & match start")]
@@ -205,6 +208,9 @@ namespace Prototype.NetworkLobby
             }
 
             ClientScene.localPlayers.Clear();
+
+            if (OnCleanUp != null)
+                OnCleanUp();
             
             ChangeTo(mainMenuPanel);
         }
@@ -250,6 +256,9 @@ namespace Prototype.NetworkLobby
                 StopMatchMaker();
                 StopHost();
             }
+
+            if (OnCleanUp != null)
+                OnCleanUp();
         }
 
         public void OnPlayersNumberModified(int count)
@@ -293,6 +302,9 @@ namespace Prototype.NetworkLobby
                     p.ToggleJoinButton(numPlayers >= minPlayers);
                 }
             }
+
+            if (OnCleanUpSinglePlayer != null)
+                OnCleanUpSinglePlayer(conn);
 
         }
 
@@ -372,7 +384,13 @@ namespace Prototype.NetworkLobby
         {
             base.OnClientDisconnect(conn);
             ChangeTo(mainMenuPanel);
-        }
+
+            if (OnCleanUpSinglePlayer != null)
+                OnCleanUpSinglePlayer(conn);
+
+            if (OnCleanUp != null)
+                OnCleanUp();
+        }   
 
         public override void OnServerDisconnect(NetworkConnection conn)
         {
@@ -391,6 +409,12 @@ namespace Prototype.NetworkLobby
                     LobbyPlayerList._instance.RemovePlayer(player as LobbyPlayer);
                 }
             }
+
+            if (OnCleanUpSinglePlayer != null)
+                OnCleanUpSinglePlayer(conn);
+
+            if (OnCleanUp != null)
+                OnCleanUp();
         }
 
         public override void OnClientError(NetworkConnection conn, int errorCode)

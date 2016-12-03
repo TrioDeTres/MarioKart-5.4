@@ -33,6 +33,9 @@ public class CharacterSelectManager : NetworkBehaviour
         instance = this;
         players = new List<PlayerCharacterSelect>();
 
+        LobbyManager.singleton.OnCleanUp += Clean;
+        LobbyManager.singleton.OnCleanUpSinglePlayer += CleanSinglePlayer;
+
         PlayerCharacterSelectPoolUtil pool = PlayerCharacterSelectPoolUtil.Instance;
 
         pool.OnPlayerRegistered += AddPlayer;
@@ -82,6 +85,49 @@ public class CharacterSelectManager : NetworkBehaviour
         }
 
         return id;
+    }
+
+    private void Clean()
+    {
+        players = new List<PlayerCharacterSelect>();
+        numberOfPlayers = 0;
+        prematchCountdown = 5.0f;
+        matchCountdown = 0;
+        numberOfTotalPlayers = 0;
+        localPlayer = null;
+        PlayerCharacterSelectPoolUtil.Instance.Clean();
+    }
+
+    private void CleanSinglePlayer(NetworkConnection connection)
+    {
+        if (!NetworkServer.active)
+        {
+            Clean();
+            return;
+        }
+
+        List<PlayerCharacterSelect> playersToRemove = new List<PlayerCharacterSelect>();
+
+        for (int i = 0; i < players.Count; i++)
+        {
+            PlayerCharacterSelect player = players[i];
+
+            if (isServer && player.connectionToClient != null)
+            {
+                if (player.connectionToClient.connectionId == connection.connectionId)
+                    playersToRemove.Add(player);
+            }
+            else if (isClient && player.connectionToServer != null)
+            {
+                if (player.connectionToServer.connectionId == connection.connectionId)
+                    playersToRemove.Add(player);
+            }
+        }
+
+        for (int i = 0; i < playersToRemove.Count; i++)
+        {
+            players.Remove(playersToRemove[i]);
+        }
     }
 
     public void Update()
