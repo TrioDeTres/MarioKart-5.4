@@ -18,7 +18,7 @@ public class PlayerCharacterSelect : NetworkBehaviour
     public YoshiReferences      yoshi;
     public PlayerStatus         status;
     public YoshiSkin            selectedSkin { get; private set; }
-    
+    public PlayerManager        playerManager;
 
     public void Start()
     {

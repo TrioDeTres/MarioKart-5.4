@@ -4,7 +4,7 @@ using UnityStandardAssets.Vehicles.Car;
 public class PlayerManager : NetworkBehaviour
 {
     [SyncVar]
-    public string playername;
+    public string playerName;
 
     [SyncVar(hook = "UpdateSkin")]
     public int skin;
@@ -13,6 +13,13 @@ public class PlayerManager : NetworkBehaviour
     public CarController carController;
     public CarUserControl carUserControl;
 
+    [SyncVar]
+    public int laps;
+    [SyncVar]
+    public float lapProgression;
+    [SyncVar]
+    public int position;
+
     public void Start()
     {
         if (isLocalPlayer)
@@ -20,7 +27,9 @@ public class PlayerManager : NetworkBehaviour
             carUserControl.isLocal = true;
             Camera.main.GetComponent<KartCameraController>().target = carController.transform;
             GameSceneManager.instance.player = this;
+            
         }
+        GameSceneManager.instance.players.Add(this);
     }
     public void Update()
     {

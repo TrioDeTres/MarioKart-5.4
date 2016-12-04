@@ -31,7 +31,7 @@ public class MatchManager : NetworkBehaviour
 
             PlayerMetadata playerMeta = playersMeta[connection.connectionId];
 
-            playerManager.playername = playerMeta.playername;
+            playerManager.playerName = playerMeta.playername;
             playerManager.skin = (int) playerMeta.skin;
             NetworkServer.ReplacePlayerForConnection(connection, player, 0);
         }
