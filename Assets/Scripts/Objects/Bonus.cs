@@ -35,16 +35,14 @@ public class Bonus : NetworkBehaviour
             if (__player.bonusState == BonusState.NOTHING)
             {
                 GameSceneManager.instance.shellManager.CreateShells(__player);
-                //__player.RpcSpawnShell();
                 __player.bonusState = BonusState.SHELL;
             }
-            
         }
     }
 
     IEnumerator AppearBonus()
     {
-        yield return new WaitForSeconds(3.5f);
+        yield return new WaitForSeconds(2.5f);
         if (isServer)
             RpcEnableBonus(true);
     }

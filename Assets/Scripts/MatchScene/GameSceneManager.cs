@@ -21,7 +21,6 @@ public class GameSceneManager : NetworkBehaviour
 
     void Start()
     {
-        coinManager.OnCoinHit += CoinHit;
         if (isServer)
             NetworkServer.SpawnObjects();
     }
@@ -37,14 +36,16 @@ public class GameSceneManager : NetworkBehaviour
         if (isServer)
             matchTimer += Time.deltaTime;
     }
-    private void CoinHit()
-    {
-        coinHUD.IncreaseCoins();
-    }
     public float GetTimer()
     {
         if (player != null && player.trackCompleted)
             return player.trackCompletionTime;
         return matchTimer;
+    }
+    public int GetCoins()
+    {
+        if (player != null)
+            return player.coins;
+        return 0;
     }
 }

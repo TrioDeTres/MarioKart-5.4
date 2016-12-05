@@ -28,6 +28,8 @@ public class PlayerManager : NetworkBehaviour
     [SyncVar]
     public bool trackCompleted;
     [SyncVar]
+    public int coins = 0;
+    [SyncVar]
     public BonusState   bonusState = BonusState.NOTHING;
 
     public Transform    shellSpawnPoint;

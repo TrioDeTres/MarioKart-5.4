@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class Coin : MonoBehaviour
+public class Coin : NetworkBehaviour
 {
     public event Action<Coin> OnCoinHit;
 
@@ -24,22 +25,29 @@ public class Coin : MonoBehaviour
 
     void OnTriggerEnter(Collider col)
     {
-        if (col.tag == "Kart")
+        if (isServer && col.tag == "Player")
         {
-            meshRenderer.enabled = false;
+            PlayerManager __player = col.transform.parent.parent.parent.GetComponent<PlayerManager>();
+            Debug.Log(__player.playerName);
             coinCollider.enabled = false;
-            coinEffects.Play();
-            if (OnCoinHit != null)
-                OnCoinHit(this);
+            RpcEnableCoin(false);
+            __player.coins++;
             StartCoroutine(AppearCoin());
+            coinEffects.Play();
         }
     }
-
     IEnumerator AppearCoin()
     {
-        yield return new WaitForSeconds(3.5f);
-        GetComponent<Collider>().enabled = true;
-        GetComponentInChildren<MeshRenderer>().enabled = true;
-        coinEffects.Stop();
+        yield return new WaitForSeconds(3.0f);
+        coinCollider.enabled = true;
+        if (isServer)
+            RpcEnableCoin(true);
+    }
+
+    [ClientRpc]
+    public void RpcEnableCoin(bool p_enable)
+    {
+        meshRenderer.enabled = p_enable;
+        coinCollider.enabled = p_enable;
     }
 }
