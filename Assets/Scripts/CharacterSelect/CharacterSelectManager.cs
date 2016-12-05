@@ -156,7 +156,7 @@ public class CharacterSelectManager : NetworkBehaviour
         {
             PlayerCharacterSelect player = players[i];
             int connectionId = player.connectionToClient.connectionId;
-            PlayerMetadata meta = new PlayerMetadata(connectionId, player.playername, player.selectedSkin);
+            PlayerMetadata meta = new PlayerMetadata(connectionId, player.playerName, player.selectedSkin);
             LobbyManager.singleton.playerMetadata.Add(connectionId, meta);
         }
     }

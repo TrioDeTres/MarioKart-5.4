@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
 using UnityStandardAssets.Vehicles.Car;
+using System.Collections.Generic;
 public class PlayerManager : NetworkBehaviour
 {
     [SyncVar]
@@ -8,17 +9,29 @@ public class PlayerManager : NetworkBehaviour
 
     [SyncVar(hook = "UpdateSkin")]
     public int skin;
-    
+
+    public PlayerMetadata metaData;
     public YoshiReferences references;
     public CarController carController;
     public CarUserControl carUserControl;
 
     [SyncVar]
-    public int laps;
+    public int laps = -1;
     [SyncVar]
     public float lapProgression;
     [SyncVar]
-    public int position;
+    public int currentPlace;
+    [SyncVar]
+    public int finishedPlace = -1;
+    [SyncVar]
+    public float trackCompletionTime;
+    [SyncVar]
+    public bool trackCompleted;
+    [SyncVar]
+    public BonusState   bonusState = BonusState.NOTHING;
+
+    public Transform    shellSpawnPoint;
+    public List<Shell>  playerShells;
 
     public void Start()
     {
@@ -40,7 +53,7 @@ public class PlayerManager : NetworkBehaviour
     {
         references.LoadSkin((YoshiSkin) skin);
     }
-
+    
     [ClientRpc]
     public void RpcUpdatePlayerPosition(Vector3 position)
     {
@@ -50,6 +63,13 @@ public class PlayerManager : NetworkBehaviour
     [ClientRpc]
     public void RpcSpawnShell()
     {
-        GameSceneManager.instance.shellManager.CreateShells(carController.transform);
+        //if (bonusState == BonusState.NOTHING)
+        //    GameSceneManager.instance.shellManager.CreateShells(this);
+    }
+    [Command]
+    public void CmdPlayerShoot()
+    {
+        if (bonusState == BonusState.SHELL)
+            GameSceneManager.instance.shellManager.ThrowShell(this);
     }
 }

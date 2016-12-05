@@ -19,8 +19,8 @@ public class UIPlayerPortraitsManager : MonoBehaviour
         {
             if (i < p_players.Count)
             {
-                playerPortrait[p_players[i].position].sprite = yoshiPortraitsList[p_players[i].skin];
-                playerPortraitFrame[p_players[i].position].color = Enums.YoshiSkinToColor((YoshiSkin)p_players[i].skin);
+                playerPortrait[p_players[i].currentPlace].sprite = yoshiPortraitsList[p_players[i].skin];
+                playerPortraitFrame[p_players[i].currentPlace].color = Enums.YoshiSkinToColor((YoshiSkin)p_players[i].skin);
             }
             playerPortrait[i].transform.parent.gameObject.SetActive(i < p_players.Count ? true : false);
         }

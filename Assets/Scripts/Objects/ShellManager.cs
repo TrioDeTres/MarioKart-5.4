@@ -18,37 +18,43 @@ public class ShellManager : NetworkBehaviour
     void Start ()
     {
         shells = new List<Shell>();
-
     }
 
-    void Awake() {
+    void Awake()
+    {
         throwShell = GetComponent<AudioSource>();
     }
-
-    void Update()
-    {
-        shootCooldown += Time.deltaTime;
-        if (Input.GetKeyDown(KeyCode.Q) && shootCooldown >= 2f && shells.Count > 0)
-        {
-            throwShell.Play();
-            shells[0].transform.position = shellShootSpawn.position;
-            shells[0].SetShellRoaming(kart.forward);
-            shells.RemoveAt(0);
-        }
-    }
 	
-    public void CreateShells(Transform p_player)
+    public void CreateShells(PlayerManager p_player)
     {
         Shell __shell;
         for (int i = 0; i < 3; i++)
         {
             GameObject __go = Instantiate(shellPrefab);
             __shell = __go.GetComponent<Shell>();
-            __shell.orbitTarget = p_player;
+            __shell.orbitTarget = p_player.transform;
             __shell.orbitAngle = 120f * i;
+            p_player.playerShells.Add(__shell);
             shells.Add(__shell);
             NetworkServer.Spawn(__go);
         }
     }
-   
+   public void ThrowShell(PlayerManager p_player)
+    {
+        Debug.Log(isServer);
+        if (p_player.bonusState != BonusState.SHELL)
+            return;
+
+        Shell __shell = p_player.playerShells[0];
+        __shell.transform.position = p_player.shellSpawnPoint.position;
+        __shell.SetShellRoaming(p_player.transform.forward);
+        shells.Remove(__shell);
+        p_player.playerShells.RemoveAt(0);
+
+        Debug.Log(p_player.playerName);
+        Debug.Log(p_player.playerShells.Count);
+
+        if (p_player.playerShells.Count == 0)
+            p_player.bonusState = BonusState.NOTHING;
+    }
 }

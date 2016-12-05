@@ -38,7 +38,7 @@ public class CharacterSelectUIManager : MonoBehaviour
             //Enable Locked Bar for the skins selected by locked players
             if (p_players[i].status == PlayerCharacterSelect.PlayerStatus.LOCKED)
             {
-                portraits[(int)p_players[i].selectedSkin].EnablePlayerLockedBar(p_players[i].playername);
+                portraits[(int)p_players[i].selectedSkin].EnablePlayerLockedBar(p_players[i].playerName);
             }
         }
     }

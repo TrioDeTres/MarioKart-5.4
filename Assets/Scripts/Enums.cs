@@ -69,6 +69,12 @@ public enum KartType
     YOSHI_KART
 }
 
+public enum BonusState
+{
+    NOTHING,
+    SHELL
+}
+
 public enum ComponentState
 {
     CHAR_SELECT,

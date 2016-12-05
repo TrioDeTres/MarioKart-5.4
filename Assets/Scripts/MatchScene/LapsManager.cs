@@ -7,10 +7,10 @@ public class LapsManager : NetworkBehaviour
 {
     public Transform trackBasePoint;
     public List<Transform> testPlayers;
+
 	// Use this for initialization
 	void Start ()
     {
-        //players = PlayerCharacterSelectPoolUtil.Instance.GetPlayers();
 	}
 	
 	// Update is called once per frame
@@ -25,7 +25,6 @@ public class LapsManager : NetworkBehaviour
             __baseAngle -= 180f;
             __baseAngle *= -1f;
             __player.lapProgression = __baseAngle / 360f;
-            Debug.Log(__player.name + " " + __baseAngle);
         }
         UpdatePlayersPosition(GameSceneManager.instance.players);
         
@@ -40,7 +39,7 @@ public class LapsManager : NetworkBehaviour
         __progressions.Sort();
         foreach (PlayerManager __player in p_players)
         {
-            __player.position = __progressions.Count - 1 - __progressions.IndexOf((__player.laps * 2f) + __player.lapProgression);
+            __player.currentPlace = __progressions.Count - 1 - __progressions.IndexOf((__player.laps * 2f) + __player.lapProgression);
         }
     }
 }

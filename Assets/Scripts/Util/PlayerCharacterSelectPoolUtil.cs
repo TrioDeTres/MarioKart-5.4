@@ -56,7 +56,20 @@ public class PlayerCharacterSelectPoolUtil
     {
         return players;
     }
-
+    public PlayerCharacterSelect GetPlayerByName(string p_name)
+    {
+        foreach (PlayerCharacterSelect __player in players)
+            if (__player.playerName == p_name)
+                return __player;
+        return null;
+    }
+    public PlayerCharacterSelect GetPlayerBySkin(int p_skin)
+    {
+        foreach (PlayerCharacterSelect __player in players)
+            if ((int)__player.selectedSkin == p_skin)
+                return __player;
+        return null;
+    }
     public PlayerCharacterSelect FindLocalPlayer(List<PlayerCharacterSelect> players)
     {
         return players.FirstOrDefault(p => p.isLocalPlayer);

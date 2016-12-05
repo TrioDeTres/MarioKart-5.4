@@ -27,9 +27,18 @@ public class Bonus : NetworkBehaviour
     {
         if (isServer && col.tag == "Player")
         {
-            col.transform.parent.parent.parent.GetComponent<PlayerManager>().RpcSpawnShell();
+            PlayerManager __player = col.transform.parent.parent.parent.GetComponent<PlayerManager>();
+            Debug.Log(__player.playerName);
             RpcEnableBonus(false);
             StartCoroutine(AppearBonus());
+
+            if (__player.bonusState == BonusState.NOTHING)
+            {
+                GameSceneManager.instance.shellManager.CreateShells(__player);
+                //__player.RpcSpawnShell();
+                __player.bonusState = BonusState.SHELL;
+            }
+            
         }
     }
 

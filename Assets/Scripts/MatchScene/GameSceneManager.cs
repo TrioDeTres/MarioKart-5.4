@@ -12,7 +12,8 @@ public class GameSceneManager : NetworkBehaviour
     public CoinManager  coinManager;
     public CoinHUD      coinHUD;
     public PlayerManager player;
-
+    [SyncVar]
+    public float matchTimer = 0f;
     void Awake()
     {
         instance = this;
@@ -26,32 +27,24 @@ public class GameSceneManager : NetworkBehaviour
     }
     void Update()
     {
-        /*if (Input.GetKeyDown(KeyCode.A))
-        { 
-            foreach (PlayerManager __p in FindObjectsOfType<PlayerManager>())
+        if (isClient)
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
             {
-                Debug.Log(__p.skin);
-                Debug.Log(__p.playerName);
-            }
-            Debug.Log("----");
-            foreach (PlayerManager __p in players)
-            {
-                Debug.Log(__p.skin);
-                Debug.Log(__p.playerName);
+                player.CmdPlayerShoot();
             }
         }
         if (isServer)
-        {
-            foreach (PlayerManager _p in players)
-            {
-                _p.laps = Random.Range(0, 3);
-                _p.position = Random.Range(0, 4);
-            }
-        }*/
+            matchTimer += Time.deltaTime;
     }
     private void CoinHit()
     {
         coinHUD.IncreaseCoins();
     }
-    
+    public float GetTimer()
+    {
+        if (player != null && player.trackCompleted)
+            return player.trackCompletionTime;
+        return matchTimer;
+    }
 }

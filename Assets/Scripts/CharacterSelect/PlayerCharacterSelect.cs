@@ -10,7 +10,7 @@ public class PlayerCharacterSelect : NetworkBehaviour
     }
 
     [SyncVar]
-    public string               playername;
+    public string               playerName;
 
     [SyncVar(hook = "SetID")]
     public int                  id = -1;

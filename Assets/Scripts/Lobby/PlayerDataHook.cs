@@ -9,6 +9,6 @@ public class PlayerDataHook : LobbyHook
         PlayerCharacterSelect playerCharacterSelect = gamePlayer.GetComponent<PlayerCharacterSelect>();
         LobbyPlayer lp = lobbyPlayer.GetComponent<LobbyPlayer>();
 
-        playerCharacterSelect.playername = lp.playerName;
+        playerCharacterSelect.playerName = lp.playerName;
     }
 }
