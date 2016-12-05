@@ -25,6 +25,8 @@ public class Shell : NetworkBehaviour
     [SyncVar]
     public Vector3 velocity;
     public float rotSpeed;
+
+    private float lifeSpan = 20f;
     void Start()
     {
         rigidBody.isKinematic = true;
@@ -32,17 +34,22 @@ public class Shell : NetworkBehaviour
     }
     void Update()
     {
-        //if (isServer)
-        {
-            shellModel.transform.Rotate(Vector3.up * rotSpeed * Time.deltaTime);
+        shellModel.transform.Rotate(Vector3.up * rotSpeed * Time.deltaTime);
 
-            if (shellState == ShellState.ORBIT)
-            {
-                orbitAngle += orbitSpeed * Time.deltaTime;
-                transform.position = new Vector3(orbitRadius * Mathf.Cos(orbitAngle * Mathf.Deg2Rad), 0f,
-                    orbitRadius * Mathf.Sin(orbitAngle * Mathf.Deg2Rad)) + orbitTarget.transform.position;
-            }
+        if (shellState == ShellState.ORBIT)
+        {
+            orbitAngle += orbitSpeed * Time.deltaTime;
+            transform.position = new Vector3(orbitRadius * Mathf.Cos(orbitAngle * Mathf.Deg2Rad), 0f,
+                orbitRadius * Mathf.Sin(orbitAngle * Mathf.Deg2Rad)) + orbitTarget.transform.position;
+
         }
+        else if (isServer)
+        {
+            lifeSpan -= Time.deltaTime;
+            if (lifeSpan < 0f)
+                NetworkServer.Destroy(gameObject);
+        }
+
     }
     void FixedUpdate()
     {
@@ -59,7 +66,16 @@ public class Shell : NetworkBehaviour
                 velocity = rigidBody.velocity;
         }
     }
-
+    void OnCollisionEnter(Collision collision)
+    {
+        if (isServer && collision.gameObject.tag == "Player")
+        {
+            PlayerManager __player = collision.gameObject.GetComponent<PlayerManager>();
+            __player.rigidBody.angularVelocity = Vector3.up * 100000000000;
+            __player.RpcPlayerDamaged(Vector3.up * 100000000000f);
+            NetworkServer.Destroy(gameObject);
+        }
+    }
     public void SetShellRoaming(Vector3 p_direction)
     {
         shellState = ShellState.ROAMING;

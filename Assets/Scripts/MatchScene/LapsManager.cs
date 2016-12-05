@@ -6,7 +6,6 @@ using System.Collections.Generic;
 public class LapsManager : NetworkBehaviour
 {
     public Transform trackBasePoint;
-    public List<Transform> testPlayers;
 
 	// Use this for initialization
 	void Start ()
@@ -20,6 +19,8 @@ public class LapsManager : NetworkBehaviour
             return;
         foreach (PlayerManager __player in GameSceneManager.instance.players)
         {
+            if (__player == null)
+                continue;
             float __baseAngle = Mathf.Atan2(__player.transform.position.z - trackBasePoint.position.z,
                 __player.transform.position.x - trackBasePoint.position.x) * Mathf.Rad2Deg;
             __baseAngle -= 180f;
@@ -31,15 +32,15 @@ public class LapsManager : NetworkBehaviour
 	}
     private void UpdatePlayersPosition(List<PlayerManager> p_players)
     {
-        List<float> __progressions = new List<float>();
+        List<float> __prog = new List<float>();
         foreach (PlayerManager __player in p_players)
         {
-            __progressions.Add((__player.laps * 2f) + __player.lapProgression);
+            __prog.Add((__player.laps * 2f) + __player.lapProgression);
         }
-        __progressions.Sort();
+        __prog.Sort();
         foreach (PlayerManager __player in p_players)
         {
-            __player.currentPlace = __progressions.Count - 1 - __progressions.IndexOf((__player.laps * 2f) + __player.lapProgression);
+            __player.currentPlace = __prog.Count - 1 - __prog.IndexOf((__player.laps * 2f) + __player.lapProgression);
         }
     }
 }

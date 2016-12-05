@@ -41,7 +41,6 @@ public class ShellManager : NetworkBehaviour
     }
    public void ThrowShell(PlayerManager p_player)
     {
-        Debug.Log(isServer);
         if (p_player.bonusState != BonusState.SHELL)
             return;
 
@@ -50,9 +49,6 @@ public class ShellManager : NetworkBehaviour
         __shell.SetShellRoaming(p_player.transform.forward);
         shells.Remove(__shell);
         p_player.playerShells.RemoveAt(0);
-
-        Debug.Log(p_player.playerName);
-        Debug.Log(p_player.playerShells.Count);
 
         if (p_player.playerShells.Count == 0)
             p_player.bonusState = BonusState.NOTHING;

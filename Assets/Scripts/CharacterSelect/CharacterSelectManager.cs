@@ -111,13 +111,14 @@ public class CharacterSelectManager : NetworkBehaviour
         for (int i = 0; i < players.Count; i++)
         {
             PlayerCharacterSelect player = players[i];
-
-            if (isServer && player.connectionToClient != null)
+            if (player == null)
+                continue;
+            if (isServer && player != null && player.connectionToClient != null)
             {
                 if (player.connectionToClient.connectionId == connection.connectionId)
                     playersToRemove.Add(player);
             }
-            else if (isClient && player.connectionToServer != null)
+            else if (isClient && player != null && player.connectionToServer != null)
             {
                 if (player.connectionToServer.connectionId == connection.connectionId)
                     playersToRemove.Add(player);

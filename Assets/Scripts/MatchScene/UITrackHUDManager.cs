@@ -31,6 +31,8 @@ public class UITrackHUDManager : MonoBehaviour
         {
             if (i < p_players.Count)
             {
+                if (p_players[i] == null)
+                    continue;
                 float __x = (p_players[i].transform.position.x - minPosWorld.position.x) / worldPosSize.x;
                 float __y = (p_players[i].transform.position.z - minPosWorld.position.z) / worldPosSize.z;
                 //NEED ID

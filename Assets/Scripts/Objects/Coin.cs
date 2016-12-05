@@ -9,8 +9,8 @@ public class Coin : NetworkBehaviour
 
     public MeshRenderer meshRenderer;
     public Collider coinCollider;
+    public AudioSource coinEffects;
     public float rotSpeed = 180f;
-    AudioSource coinEffects;
 
     void Awake()
     {
@@ -25,14 +25,19 @@ public class Coin : NetworkBehaviour
 
     void OnTriggerEnter(Collider col)
     {
-        if (isServer && col.tag == "Player")
+        if (col.tag == "Player")
         {
-            PlayerManager __player = col.transform.parent.parent.parent.GetComponent<PlayerManager>();
-            Debug.Log(__player.playerName);
+            if (isServer)
+            {
+                PlayerManager __player = col.transform.parent.parent.parent.GetComponent<PlayerManager>();
+                
+                RpcEnableCoin(false);
+                StartCoroutine(AppearCoin());
+                __player.coins++;
+            }
+            meshRenderer.enabled = false;
             coinCollider.enabled = false;
-            RpcEnableCoin(false);
-            __player.coins++;
-            StartCoroutine(AppearCoin());
+            
             coinEffects.Play();
         }
     }

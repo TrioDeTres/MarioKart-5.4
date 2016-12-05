@@ -1,27 +1,49 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class ChangeKartFlag : MonoBehaviour
+public class ChangeKartFlag : NetworkBehaviour
 {
-    public static bool wrongWay = false;
     public int flagValue = 0;
-
+    public bool isWinBox;
     void OnTriggerEnter(Collider col)
     {
-        if (col.tag != "Kart")
+        if (!isServer)
             return;
-        if (TriggerFlag.currentFlagValue < flagValue && TriggerFlag.currentFlagValue != flagValue && (TriggerFlag.currentFlagValue + 1 == flagValue))
+        if (col.tag != "Player")
+            return;
+        PlayerManager __player = col.transform.parent.parent.parent.GetComponent<PlayerManager>();
+        if (isWinBox
+            && __player.laps == -1)
+            __player.laps = 0;
+        else if (isWinBox)
         {
-            TriggerFlag.currentFlagValue = flagValue;
-            Debug.Log("Flag " + flagValue + " current " + TriggerFlag.currentFlagValue);
-            wrongWay = false;
+            if (__player.lastFlagId == 37 && __player.flagIds.Count == 38)
+            {
+                __player.flagIds.Clear();
+                __player.lastFlagId = -1;
+                __player.laps++;
+            }
         }
         else
         {
-            wrongWay = true;
-            Debug.Log("Wrong way");
+            //Progressing
+            if (__player.lastFlagId < flagValue && !__player.flagIds.Contains(flagValue)
+                && __player.lastFlagId == (flagValue - 1))
+            {
+                __player.lastFlagId = flagValue;
+                __player.flagIds.Add(flagValue);
+                UIWrongWayManager.isWrongWay = false;
+            }
+            //Regressing
+            else if (__player.lastFlagId > flagValue && __player.flagIds.Contains(flagValue))
+            {
+                __player.flagIds.Remove(__player.lastFlagId);
+                __player.lastFlagId = flagValue;
+                //__player.flagIds.Remove(flagValue);
+                UIWrongWayManager.isWrongWay = true;
+            }
         }
-        
     }
 }

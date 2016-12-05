@@ -10,11 +10,11 @@ public class PlayerManager : NetworkBehaviour
     [SyncVar(hook = "UpdateSkin")]
     public int skin;
 
-    public PlayerMetadata metaData;
-    public YoshiReferences references;
-    public CarController carController;
-    public CarUserControl carUserControl;
-
+    public PlayerMetadata   metaData;
+    public YoshiReferences  references;
+    public CarController    carController;
+    public CarUserControl   carUserControl;
+    public Rigidbody        rigidBody;
     [SyncVar]
     public int laps = -1;
     [SyncVar]
@@ -34,6 +34,8 @@ public class PlayerManager : NetworkBehaviour
 
     public Transform    shellSpawnPoint;
     public List<Shell>  playerShells;
+    public List<int>    flagIds = new List<int>();
+    public int          lastFlagId = -1;
 
     public void Start()
     {
@@ -42,7 +44,6 @@ public class PlayerManager : NetworkBehaviour
             carUserControl.isLocal = true;
             Camera.main.GetComponent<KartCameraController>().target = carController.transform;
             GameSceneManager.instance.player = this;
-            
         }
         GameSceneManager.instance.players.Add(this);
     }
@@ -68,6 +69,11 @@ public class PlayerManager : NetworkBehaviour
         //if (bonusState == BonusState.NOTHING)
         //    GameSceneManager.instance.shellManager.CreateShells(this);
     }
+    [ClientRpc]
+    public void RpcPlayerDamaged(Vector3 p_angularVelocity)
+    {
+        rigidBody.angularVelocity = p_angularVelocity;
+    } 
     [Command]
     public void CmdPlayerShoot()
     {
