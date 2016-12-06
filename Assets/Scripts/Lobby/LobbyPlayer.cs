@@ -18,6 +18,10 @@ namespace Prototype.NetworkLobby
         [SyncVar(hook = "OnMyName")]
         public string playerName = "";
 
+        [SyncVar(hook = "SyncReadyButton")]
+        public bool readyButtonReady;
+        public bool lastReadyState;
+
         public Color OddRowColor = new Color(250.0f / 255.0f, 250.0f / 255.0f, 250.0f / 255.0f, 1.0f);
         public Color EvenRowColor = new Color(180.0f / 255.0f, 180.0f / 255.0f, 180.0f / 255.0f, 1.0f);
 
@@ -25,6 +29,14 @@ namespace Prototype.NetworkLobby
         public Color NotReadyColor = new Color(34.0f / 255.0f, 44 / 255.0f, 55.0f / 255.0f, 1.0f);
         public Color ReadyColor = new Color(0.0f, 204.0f / 255.0f, 204.0f / 255.0f, 1.0f);
         public Color HighlightedColor = new Color(9.0f, 56.0f, 56.0f, 1.0f);
+
+        public void Update()
+        {
+            if (lastReadyState != readyButtonReady) {
+                OnClientReady(readyButtonReady);
+                lastReadyState = readyButtonReady;
+            }
+        }
 
         public override void OnClientEnterLobby()
         {
@@ -142,6 +154,7 @@ namespace Prototype.NetworkLobby
 
         public void OnReadyClicked()
         {
+            CmdToggleReady();
             SendReadyToBeginMessage();
         }
 
@@ -160,6 +173,12 @@ namespace Prototype.NetworkLobby
         {
             LobbyManager.singleton.countdownPanel.UIText.text = "Match Starting in " + countdown;
             LobbyManager.singleton.countdownPanel.gameObject.SetActive(countdown != 0);
+        }
+
+        [Command]
+        public void CmdToggleReady()
+        {
+            readyButtonReady = !readyButtonReady;
         }
 
         [Command]
@@ -185,6 +204,11 @@ namespace Prototype.NetworkLobby
         {
             LobbyPlayerList._instance.RemovePlayer(this);
             if (LobbyManager.singleton != null) LobbyManager.singleton.OnPlayersNumberModified(-1);
+        }
+
+        public void SyncReadyButton(bool ready)
+        {
+            OnClientReady(ready);
         }
     }
 }
