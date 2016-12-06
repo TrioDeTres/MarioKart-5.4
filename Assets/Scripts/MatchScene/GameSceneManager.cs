@@ -53,7 +53,8 @@ public class GameSceneManager : NetworkBehaviour
     }
     public void AddPlayerLap(PlayerManager p_player)
     {
-        p_player.laps++;
+        p_player.laps = 3;
+        //p_player.laps++;
         if (p_player.laps == 3)
         {
             p_player.hasControl = false;
@@ -68,31 +69,39 @@ public class GameSceneManager : NetworkBehaviour
             if (finishedPlayers.Count == __activePlayers)
             {
                 Dictionary<int, PlayerMetadata> playersMeta = LobbyManager.singleton.playerMetadata;
-                foreach (PlayerManager __player in players)
+                List<PlayerCharacterSelect> __charSelectPlayerList = PlayerCharacterSelectPoolUtil.Instance.GetPlayers();
+                foreach (PlayerCharacterSelect __char in __charSelectPlayerList)
                 {
-                    if (__player == null)
-                        continue;
-                    __player.metaData.coinCount = __player.coins;
-                    __player.metaData.trackTimer = __player.trackCompletionTime;
-                    __player.metaData.trackTimerWithCoins = __player.trackCompletionTime - ((__player.finishedPlace + 1) * __player.coins * 0.1f);
+                    foreach (PlayerManager __player in players)
+                    {
+                        if (__player == null)
+                            continue;
+                        if (__player.skin == (int)__char.selectedSkin)
+                        {
+                            __char.coinCount = __player.coins;
+                            __char.trackTimer = __player.trackCompletionTime;
+                            __char.trackTimerWithCoins = __player.trackCompletionTime - ((__player.finishedPlace + 1) * __player.coins * 0.1f);
+                        }
+                    }
                 }
                 List<float> __prog = new List<float>();
-                foreach (PlayerManager __player in players)
+                foreach (PlayerCharacterSelect __char in __charSelectPlayerList)
                 {
-                    if (__player == null)
-                        continue;
-                    __prog.Add(__player.metaData.trackTimerWithCoins);
+                    __prog.Add(__char.trackTimerWithCoins);
                 }
                 __prog.Sort();
-                foreach (PlayerManager __player in players)
+                foreach (PlayerCharacterSelect __char in __charSelectPlayerList)
                 {
-                    if (__player == null)
-                        continue;
-                    __player.metaData.endPosition = __prog.IndexOf(__player.metaData.trackTimerWithCoins);
+                    __char.endPosition = __prog.IndexOf(__char.trackTimerWithCoins);
                 }
-                Debug.Log("Here");
-                NetworkManager.singleton.ServerChangeScene("FinalScene");
+                StartCoroutine(ChangeToFinalScene());
+                
             }
         }
+    }
+    IEnumerator ChangeToFinalScene()
+    {
+        yield return new WaitForSeconds(3f);
+        NetworkManager.singleton.ServerChangeScene("FinalScene");
     }
 }

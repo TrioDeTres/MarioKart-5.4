@@ -27,6 +27,8 @@ namespace UnityStandardAssets.Vehicles.Car
 
                 m_Car.Move(h, v, v, handbrake);
             }
+            else if (isLocal && !hasControl)
+                m_Car.Move(0f, 0f, 0f, 1f);
         }
     }
 }

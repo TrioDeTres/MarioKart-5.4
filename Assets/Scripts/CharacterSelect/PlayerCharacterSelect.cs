@@ -19,7 +19,14 @@ public class PlayerCharacterSelect : NetworkBehaviour
     public PlayerStatus         status;
     public YoshiSkin            selectedSkin { get; private set; }
     public PlayerManager        playerManager;
-
+    [SyncVar]
+    public int coinCount;
+    [SyncVar]
+    public float trackTimer;
+    [SyncVar]
+    public float trackTimerWithCoins;
+    [SyncVar]
+    public int endPosition;
     public void Start()
     {
         PlayerCharacterSelectPoolUtil.Instance.AddPlayer(this);
