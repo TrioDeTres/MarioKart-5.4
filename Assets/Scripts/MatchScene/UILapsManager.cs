@@ -20,12 +20,12 @@ public class UILapsManager : MonoBehaviour
         if (__lap == -1)
             lapsLabel.text = "LAP 1/3";
         else if (__lap == 3)
-            lapsLabel.text = GetPositionText (GameSceneManager.instance.player.currentPlace)+ " Place";
+            lapsLabel.text = GetPositionText (GameSceneManager.instance.player.finishedPlace)+ " Place";
         else
             lapsLabel.text = "LAP " + (__lap + 1).ToString() + "/3";
 	}
 
-    private string GetPositionText(int p_position)
+    public static string GetPositionText(int p_position)
     {
         if (p_position == 0)
             return "1st";

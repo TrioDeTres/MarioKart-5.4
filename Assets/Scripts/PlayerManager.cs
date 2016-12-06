@@ -53,6 +53,8 @@ public class PlayerManager : NetworkBehaviour
     public void Update()
     {
         UpdateSkin(skin);
+        if (carUserControl.hasControl != hasControl)
+            carUserControl.hasControl = hasControl;
     }
 
     public void UpdateSkin(int skin)

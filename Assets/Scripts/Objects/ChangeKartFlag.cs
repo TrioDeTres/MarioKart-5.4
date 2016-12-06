@@ -14,8 +14,8 @@ public class ChangeKartFlag : NetworkBehaviour
         if (col.tag != "Player")
             return;
         PlayerManager __player = col.transform.parent.parent.parent.GetComponent<PlayerManager>();
-        if (isWinBox
-            && __player.laps == -1)
+        Debug.Log(__player.playerName);
+        if (isWinBox && __player.laps == -1)
             __player.laps = 0;
         else if (isWinBox)
         {
@@ -23,7 +23,7 @@ public class ChangeKartFlag : NetworkBehaviour
             {
                 __player.flagIds.Clear();
                 __player.lastFlagId = -1;
-                __player.laps++;
+                GameSceneManager.instance.AddPlayerLap(__player);
             }
         }
         else
