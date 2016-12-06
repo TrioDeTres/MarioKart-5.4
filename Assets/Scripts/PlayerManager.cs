@@ -34,6 +34,8 @@ public class PlayerManager : NetworkBehaviour
     [SyncVar]
     public bool hasControl;
 
+    public AudioSource hitByShellSource;
+
     public Transform    shellSpawnPoint;
     public List<Shell>  playerShells;
     public List<int>    flagIds = new List<int>();
@@ -53,7 +55,9 @@ public class PlayerManager : NetworkBehaviour
     public void Update()
     {
         UpdateSkin(skin);
-        if (carUserControl.hasControl != hasControl)
+        if (GameSceneManager.instance.startCooldown >= 0f)
+            carUserControl.hasControl = false;
+        else if (carUserControl.hasControl != hasControl)
             carUserControl.hasControl = hasControl;
     }
 
@@ -78,6 +82,7 @@ public class PlayerManager : NetworkBehaviour
     public void RpcPlayerDamaged(Vector3 p_angularVelocity)
     {
         rigidBody.angularVelocity = p_angularVelocity;
+        hitByShellSource.Play();
     } 
     [Command]
     public void CmdPlayerShoot()

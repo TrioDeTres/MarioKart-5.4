@@ -45,6 +45,7 @@ public class Shell : NetworkBehaviour
         }
         else if (isServer)
         {
+            shellCollider.enabled = true;
             lifeSpan -= Time.deltaTime;
             if (lifeSpan < 0f)
                 NetworkServer.Destroy(gameObject);
@@ -57,10 +58,6 @@ public class Shell : NetworkBehaviour
         {
             rigidBody.velocity = new Vector3(rigidBody.velocity.x, 0f, rigidBody.velocity.z);
             rigidBody.velocity = rigidBody.velocity.normalized * 50f;
-
-
-            //rigidBody.velocity = new Vector3(velocity.x, 0f, velocity.z);
-            //rigidBody.velocity = rigidBody.velocity.normalized * 50f;
 
             if (isServer)
                 velocity = rigidBody.velocity;
@@ -90,6 +87,8 @@ public class Shell : NetworkBehaviour
     {
         rigidBody.isKinematic = false;
         shellCollider.isTrigger = false;
+        if (isClient)
+            shellCollider.enabled = false;
         rigidBody.velocity = p_velocity;
     }
 }

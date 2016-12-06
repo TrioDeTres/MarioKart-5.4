@@ -49,8 +49,13 @@ public class ShellManager : NetworkBehaviour
         __shell.SetShellRoaming(p_player.transform.forward);
         shells.Remove(__shell);
         p_player.playerShells.RemoveAt(0);
-
+        RpcPlayThrowSound();
         if (p_player.playerShells.Count == 0)
             p_player.bonusState = BonusState.NOTHING;
+    }
+    [ClientRpc]
+    public void RpcPlayThrowSound()
+    {
+        throwShell.Play();
     }
 }

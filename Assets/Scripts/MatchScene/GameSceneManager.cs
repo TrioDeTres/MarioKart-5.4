@@ -15,6 +15,8 @@ public class GameSceneManager : NetworkBehaviour
     public PlayerManager player;
     [SyncVar]
     public float matchTimer = 0f;
+    [SyncVar]
+    public float startCooldown = 3.5f;
     public List<PlayerManager> finishedPlayers;
     void Awake()
     {
@@ -29,6 +31,7 @@ public class GameSceneManager : NetworkBehaviour
     }
     void Update()
     {
+        
         if (isClient)
         {
             if (Input.GetKeyDown(KeyCode.Space))
@@ -37,7 +40,12 @@ public class GameSceneManager : NetworkBehaviour
             }
         }
         if (isServer)
+        {
             matchTimer += Time.deltaTime;
+            if (startCooldown >= 0f)
+                startCooldown -= Time.deltaTime;
+
+        }
     }
     public float GetTimer()
     {
@@ -53,8 +61,8 @@ public class GameSceneManager : NetworkBehaviour
     }
     public void AddPlayerLap(PlayerManager p_player)
     {
-        p_player.laps = 3;
-        //p_player.laps++;
+        //p_player.laps = 3;
+        p_player.laps++;
         if (p_player.laps == 3)
         {
             p_player.hasControl = false;
