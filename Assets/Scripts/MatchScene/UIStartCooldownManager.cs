@@ -9,7 +9,7 @@ public class UIStartCooldownManager : MonoBehaviour
     public AudioSource cooldownSound;
     void Start()
     {
-        cooldownSound.PlayDelayed(1.5f);
+        cooldownSound.PlayDelayed(0.5f);
     }
 
 	// Update is called once per frame

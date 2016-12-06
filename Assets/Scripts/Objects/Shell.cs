@@ -58,8 +58,8 @@ public class Shell : NetworkBehaviour
         {
             rigidBody.velocity = new Vector3(rigidBody.velocity.x, 0f, rigidBody.velocity.z);
             rigidBody.velocity = rigidBody.velocity.normalized * 50f;
-
-            if (isServer)
+            rigidBody.velocity = new Vector3(rigidBody.velocity.x, -5f, rigidBody.velocity.z);
+            if (isServer && lifeSpan <= 19.5f)
                 velocity = rigidBody.velocity;
         }
     }

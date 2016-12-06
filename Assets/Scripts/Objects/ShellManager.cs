@@ -43,7 +43,8 @@ public class ShellManager : NetworkBehaviour
     {
         if (p_player.bonusState != BonusState.SHELL)
             return;
-
+        if (!p_player.hasControl)
+            return;
         Shell __shell = p_player.playerShells[0];
         __shell.transform.position = p_player.shellSpawnPoint.position;
         __shell.SetShellRoaming(p_player.transform.forward);
