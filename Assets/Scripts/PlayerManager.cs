@@ -31,6 +31,8 @@ public class PlayerManager : NetworkBehaviour
     public int coins = 0;
     [SyncVar]
     public BonusState   bonusState = BonusState.NOTHING;
+    [SyncVar]
+    public bool hasControl;
 
     public Transform    shellSpawnPoint;
     public List<Shell>  playerShells;
@@ -41,6 +43,7 @@ public class PlayerManager : NetworkBehaviour
     {
         if (isLocalPlayer)
         {
+            carUserControl.hasControl = hasControl;
             carUserControl.isLocal = true;
             Camera.main.GetComponent<KartCameraController>().target = carController.transform;
             GameSceneManager.instance.player = this;

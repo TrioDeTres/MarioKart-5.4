@@ -43,12 +43,9 @@ namespace Prototype.NetworkLobby
         public Text statusInfo;
         public Text hostInfo;
 
-        //Client numPlayers from NetworkManager is always 0, so we count (throught connect/destroy in LobbyPlayer) the number
-        //of players, so that even client know how many player there is.
         [HideInInspector]
         public int _playerNumber = 0;
 
-        //used to disconnect a client properly when exiting the matchmaker
         [HideInInspector]
         public bool _isMatchmaking = false;
 
@@ -126,7 +123,6 @@ namespace Prototype.NetworkLobby
 
                 Destroy(GameObject.Find("MainMenuUI(Clone)"));
 
-                //backDelegate = StopGameClbk;
                 topPanel.isInGame = true;
                 topPanel.ToggleVisibility(false);
             }
@@ -178,8 +174,6 @@ namespace Prototype.NetworkLobby
             backDelegate();
 			topPanel.isInGame = false;
         }
-
-        // ----------------- Server management
 
         public void AddLocalPlayer()
         {
@@ -266,10 +260,12 @@ namespace Prototype.NetworkLobby
         {
             _playerNumber += count;
             int localPlayerCount = 0;
-            foreach (PlayerController p in ClientScene.localPlayers)
+
+            foreach (PlayerController p in ClientScene.localPlayers) { 
                 localPlayerCount += (p == null || p.playerControllerId == -1) ? 0 : 1;
+            }
+
             addPlayerButton.SetActive(false);
-            //addPlayerButton.SetActive(localPlayerCount < maxPlayersPerConnection && _playerNumber < maxPlayers);
         }
 
         public override GameObject OnLobbyServerCreateLobbyPlayer(NetworkConnection conn, short playerControllerId)

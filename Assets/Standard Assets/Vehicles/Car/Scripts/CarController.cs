@@ -112,14 +112,15 @@ namespace UnityStandardAssets.Vehicles.Car
 
         public void Move(float steering, float accel, float footbrake, float handbrake)
         {
-            /*for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 2; i++)
             {
                 Quaternion quat;
                 Vector3 position;
                 m_WheelColliders[i].GetWorldPose(out position, out quat);
-                m_WheelMeshes[i].transform.position = position;
-                m_WheelMeshes[i].transform.localRotation = quat;
-            }*/
+                Vector3 wheelRotation = quat.eulerAngles;
+                wheelRotation.z = 90.0f;
+                m_WheelMeshes[i].transform.rotation = Quaternion.Euler(wheelRotation);
+            }
 
             steering = Mathf.Clamp(steering, -1, 1);
             AccelInput = accel = Mathf.Clamp(accel, 0, 1);
@@ -139,6 +140,11 @@ namespace UnityStandardAssets.Vehicles.Car
                 var hbTorque = handbrake*m_MaxHandbrakeTorque;
                 m_WheelColliders[2].brakeTorque = hbTorque;
                 m_WheelColliders[3].brakeTorque = hbTorque;
+            }
+            else
+            {
+                m_WheelColliders[2].brakeTorque = 0;
+                m_WheelColliders[3].brakeTorque = 0;
             }
 
 

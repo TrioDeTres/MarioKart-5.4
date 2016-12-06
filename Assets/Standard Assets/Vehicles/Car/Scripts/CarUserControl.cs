@@ -9,6 +9,7 @@ namespace UnityStandardAssets.Vehicles.Car
         private CarController m_Car;
 
         public bool isLocal;
+        public bool hasControl;
 
         private void Awake()
         {
@@ -17,7 +18,7 @@ namespace UnityStandardAssets.Vehicles.Car
 
         private void FixedUpdate()
         {
-            if (isLocal)
+            if (isLocal && hasControl)
             {
                 float h = Input.GetAxis("Horizontal");
                 float v = Input.GetAxis("Vertical");
